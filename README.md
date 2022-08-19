@@ -1,6 +1,10 @@
 # vite-plugin-svg-icons-ssr
 
-用于生成 svg 雪碧图.
+用于生成 svg 雪碧图。
+
+https://www.npmjs.com/package/vite-plugin-svg-icons-ssr
+
+https://www.npmmirror.com/sync/vite-plugin-svg-icons-ssr
 
 ## 特征
 
