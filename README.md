@@ -1,81 +1,69 @@
-# vite-plugin-svg-icons
+# vite-plugin-svg-icons-ssr
 
-**English** | [中文](./README.zh_CN.md)
+用于生成 svg 雪碧图.
 
-Used to generate svg sprite map.
+## 特征
 
-## Feature
+- **预加载** 在项目运行时就生成所有图标,只需操作一次 dom
+- **高性能** 内置缓存,仅当文件被修改时才会重新生成
 
-- **Preloading** All icons are generated when the project is running, and you only need to operate dom once.
-- **High performance** Built-in cache, it will be regenerated only when the file is modified.
-
-## Installation (yarn or npm)
+## 安装
 
 **node version:** >=12.0.0
 
 **vite version:** >=2.0.0
 
 ```bash
-yarn add vite-plugin-svg-icons -D
+yarn add vite-plugin-svg-icons-ssr -D
 # or
-npm i vite-plugin-svg-icons -D
+npm i vite-plugin-svg-icons-ssr -D
 # or
-pnpm install vite-plugin-svg-icons -D
+pnpm install vite-plugin-svg-icons-ssr -D
 ```
 
-## Usage
+## 使用
 
-- Configuration plugin in vite.config.ts
+- vite.config.ts 中的配置插件
 
 ```ts
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import { createSvgIconsSsrPlugin } from 'vite-plugin-svg-icons-ssr'
 import path from 'path'
 
 export default () => {
   return {
     plugins: [
-      createSvgIconsPlugin({
-        // Specify the icon folder to be cached
-        iconDirs: [path.resolve(process.cwd(), 'src/icons')],
-        // Specify symbolId format
-        symbolId: 'icon-[dir]-[name]',
-
-        /**
-         * custom insert position
-         * @default: body-last
-         */
-        inject?: 'body-last' | 'body-first'
-
-        /**
-         * custom dom id
-         * @default: __svg__icons__dom__
-         */
-        customDomId: '__svg__icons__dom__',
-      }),
-    ],
+      createSvgIconsSsrPlugin({
+        // 指定需要缓存的图标文件夹
+        iconDir: path.resolve(process.cwd(), 'src/icons'),
+        // 指定 symbolId 格式
+        symbolIdTemplate: 'icon-[dir]-[name]'
+      })
+    ]
   }
 }
-
 ```
 
-- Introduce the registration script in src/main.ts
+- 在 src/main.ts 内引入注册脚本
 
 ```ts
-import 'virtual:svg-icons-register'
+import svgHtml from 'virtual:svg-icons-ssr-html'
+
+// in template
+<div v-html="svgHtml" style="display:none" />
 ```
 
-Here the svg sprite map has been generated
+到这里 svg 雪碧图已经生成
 
-## How to use in components
+## 如何在组件使用
 
-### **Vue way**
+**Vue 方式**
 
 `/src/components/SvgIcon.vue`
 
 ```vue
 <template>
   <svg aria-hidden="true">
-    <use :href="symbolId" :fill="color" />
+    <use :xlink:href="symbolId" :fill="color" />
   </svg>
 </template>
 
@@ -87,26 +75,26 @@ export default defineComponent({
   props: {
     prefix: {
       type: String,
-      default: 'icon',
+      default: 'icon'
     },
     name: {
       type: String,
-      required: true,
+      required: true
     },
     color: {
       type: String,
-      default: '#333',
-    },
+      default: '#333'
+    }
   },
   setup(props) {
     const symbolId = computed(() => `#${props.prefix}-${props.name}`)
     return { symbolId }
-  },
+  }
 })
 </script>
 ```
 
-#### **Icons Directory Structure**
+**icons 目录结构**
 
 ```bash
 # src/icons
@@ -135,22 +123,17 @@ import { defineComponent, computed } from 'vue'
 import SvgIcon from './components/SvgIcon.vue'
 export default defineComponent({
   name: 'App',
-  components: { SvgIcon },
+  components: { SvgIcon }
 })
 </script>
 ```
 
-### **React way**
+### **React 方式**
 
 `/src/components/SvgIcon.jsx`
 
 ```jsx
-export default function SvgIcon({
-  name,
-  prefix = 'icon',
-  color = '#333',
-  ...props
-}) {
+export default function SvgIcon({ name, prefix = 'icon', color = '#333', ...props }) {
   const symbolId = `#${prefix}-${name}`
 
   return (
@@ -161,68 +144,38 @@ export default function SvgIcon({
 }
 ```
 
-#### **Icons Directory Structure**
-
-```bash
-# src/icons
-
-- icon1.svg
-- icon2.svg
-- icon3.svg
-- dir/icon1.svg
-```
-
-`/src/App.jsx`
-
-```jsx
-import SvgIcon from './components/SvgIcon'
-
-export default function App() {
-  return (
-    <>
-      <SvgIcon name="icon1"></SvgIcon>
-      <SvgIcon name="icon1"></SvgIcon>
-      <SvgIcon name="icon1"></SvgIcon>
-      <SvgIcon name="dir-icon1"></SvgIcon>
-    </>
-  )
-}
-```
-
-### Get all SymbolId
+### 获取所有 SymbolId
 
 ```ts
-import ids from 'virtual:svg-icons-names'
+import names from 'virtual:svg-icons-ssr-names'
 // => ['icon-icon1','icon-icon2','icon-icon3']
 ```
 
-### Options
+### 配置说明
 
-| Parameter   | Type                   | Default               | Description                                                                           |
-| ----------- | ---------------------- | --------------------- | ------------------------------------------------------------------------------------- |
-| iconDirs    | `string[]`             | -                     | Need to generate the icon folder of the Sprite image                                  |
-| symbolId    | `string`               | `icon-[dir]-[name]`   | svg symbolId format, see the description below                                        |
-| svgoOptions | `boolean｜SvgoOptions` | `true`                | svg compression configuration, can be an object[Options](https://github.com/svg/svgo) |
-| inject      | `string`               | `body-last`           | svgDom default insertion position, optional `body-first`                              |
-| customDomId | `string`               | `__svg__icons__dom__` | Customize the ID of the svgDom insert node                                            |
+| 参数             | 类型                   | 默认值              | 说明                                                           |
+| ---------------- | ---------------------- | ------------------- | -------------------------------------------------------------- |
+| iconDir          | `string`               | -                   | 需要生成雪碧图的图标文件夹                                     |
+| symbolIdTemplate | `string`               | `icon-[dir]-[name]` | svg 的 symbolId 格式，见下方说明                               |
+| svgoOptions      | `boolean｜SvgoOptions` | `true`              | svg 压缩配置，可以是对象[Options](https://github.com/svg/svgo) |
 
-**symbolId**
+**symbolIdTemplate**
 
 `icon-[dir]-[name]`
 
 **[name]:**
 
-svg file name
+svg 文件名
 
 **[dir]**
 
-The svg of the plug-in will not generate hash to distinguish, but distinguish it by folder.
+该插件的 svg 不会生成 hash 来区分，而是通过文件夹来区分.
 
-If the folder corresponding to `iconDirs` contains this other folder
+如果`iconDir`对应的文件夹下面包含这其他文件夹
 
-example:
+例：
 
-Then the generated SymbolId is written in the comment
+则生成的 SymbolId 为注释所写
 
 ```bash
 # src/icons
@@ -233,42 +186,15 @@ Then the generated SymbolId is written in the comment
 - dir/dir2/icon1.svg # icon-dir-dir2-icon1
 ```
 
-## Typescript Support
+## Typescript 支持
 
-If using `Typescript`, you can add in `tsconfig.json`
+如果使用 `Typescript`,你可以在`tsconfig.json`内添加
 
 ```json
 // tsconfig.json
 {
   "compilerOptions": {
-    "types": ["vite-plugin-svg-icons/client"]
+    "types": ["vite-plugin-svg-icons-ssr/client"]
   }
 }
 ```
-
-**Note**
-
-Although the use of folders to distinguish between them can largely avoid the problem of duplicate names, there will also be svgs with multiple folders and the same file name in `iconDirs`.
-
-This needs to be avoided by the developer himself
-
-## Example
-
-**Run**
-
-```bash
-
-pnpm install
-cd ./packages/playground/basic
-pnpm run dev
-pnpm run build
-
-```
-
-## Sample project
-
-[Vben Admin](https://github.com/anncwb/vue-vben-admin)
-
-## License
-
-[MIT © Vben-2020](./LICENSE)

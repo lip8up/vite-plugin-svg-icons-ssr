@@ -1,18 +1,28 @@
 {
-  "name": "vite-plugin-svg-icons-monorepo",
-  "private": true,
-  "version": "2.0.1",
+  "name": "vite-plugin-svg-icons-ssr",
+  "version": "1.9.9",
+  "description": "Vite Plugin for fast creating SVG sprites.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "license": "MIT",
-  "author": "Vben",
+  "author": "lip8up",
+  "files": [
+    "dist",
+    "client.d.ts"
+  ],
   "scripts": {
-    "stub": "pnpm run prepack --filter ./packages -- --stub",
-    "postinstall": "pnpm run stub",
-    "log": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "lint:pretty": "pretty-quick --staged",
-    "lint:eslint": "eslint \"packages/**/*.{ts,tsx}\" --fix",
-    "prepare": "husky install",
-    "preinstall": "npx only-allow pnpm",
-    "test": "vitest"
+    "dev": "pnpm unbuild --stub",
+    "build": "pnpm unbuild",
+    "prepublishOnly": "npm run build",
+    "prepack": "pnpm unbuild"
   },
   "keywords": [
     "vite",
@@ -24,45 +34,26 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/anncwb/vite-plugin-svg-icons"
+    "url": "https://github.com/lip8up/vite-plugin-svg-icons-ssr",
+    "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/anncwb/vite-plugin-svg-i cons/issues"
+    "url": "https://github.com/anncwb/vite-plugin-svg-icons-ssr/issues"
   },
-  "homepage": "https://github.com/anncwb/vite-plugin-svg-icons/tree/master/#readme",
+  "homepage": "https://github.com/lip8up/vite-plugin-svg-icons-ssr/tree/main/#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "etag": "^1.8.1",
+    "svg-sprite-scan": "^1.99.9",
+    "unbuild": "^0.8.9"
+  },
+  "peerDependencies": {
+    "vite": ">=2.0.0"
+  },
   "devDependencies": {
-    "@commitlint/cli": "^16.1.0",
-    "@commitlint/config-conventional": "^16.0.0",
-    "@types/html-minifier-terser": "^6.1.0",
-    "@types/jsdom": "^16.2.14",
+    "@types/etag": "^1.8.1",
     "@types/node": "^17.0.13",
-    "@typescript-eslint/eslint-plugin": "^5.10.1",
-    "@typescript-eslint/parser": "^5.10.1",
-    "commitizen": "^4.2.4",
-    "conventional-changelog-cli": "^2.2.2",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.7.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-html": "^6.2.0",
-    "husky": "^7.0.4",
-    "lint-staged": "^12.3.2",
-    "prettier": "^2.5.1",
-    "rimraf": "^3.0.2",
-    "tsup": "^5.11.11",
-    "typescript": "^4.5.5",
-    "unbuild": "^0.6.9",
-    "vite": "^2.7.13",
-    "vitest": "^0.2.5"
-  },
-  "lint-staged": {
-    "*": [
-      "prettier --write --ignore-unknown"
-    ],
-    "packages/*/{src,types}/**/*.ts": [
-      "eslint --ext .ts"
-    ],
-    "packages/**/*.d.ts": [
-      "eslint --ext .ts"
-    ]
+    "vite": "^3.0.9",
+    "vue": "^3.2.37"
   }
 }
