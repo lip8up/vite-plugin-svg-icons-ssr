@@ -62,7 +62,7 @@ import svgHtml from 'virtual:svg-icons-ssr-html'
 
 ```vue
 <template>
-  <svg aria-hidden="true">
+  <svg>
     <use :xlink:href="symbolId" :fill="color" />
   </svg>
 </template>
